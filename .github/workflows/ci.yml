@@ -59,5 +59,31 @@ jobs:
           export NEWDLE_TEST_DATABASE_URI="postgresql://newdletest@localhost:${{ job.services.postgres.ports[5432] }}/newdle_tests"
           make test
 
-      - name: Lint
+  Lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Setup newdle
+        run: |
+          export PYTHON=python
+          make
+
+      - name: Activate virtualenv for later steps
+        run: |
+          echo "::set-env name=VIRTUAL_ENV::$(pwd)/.venv"
+          echo "::add-path::$(pwd)/.venv/bin"
+
+      - name: Run lint
         run: make lint
